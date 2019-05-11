@@ -1,0 +1,7 @@
+name: ddm-policy-iteration
+
+dependencies:
+  - python=3.7
+  - pandas=0.23.4
+  - numpy
+  - scipy
