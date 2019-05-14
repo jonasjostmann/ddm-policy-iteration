@@ -128,6 +128,44 @@ def create_random_policy():
     print(policy)
     print(counter)
 
+
+'''
+Calculate Contribution
+Method to calculate the returned contribution by making a decision a.
+'''
+def calc_contribution(pre_state, post_state):
+
+    # Calculate contribution (Old Energy Level - New Energy Level) * Price per Energy
+    contribution = (pre_decision_states[pre_state]["state"][1]-post_decision_states[post_state]["state"][1]) \
+                   * pre_decision_states[pre_state]["state"][0]
+
+    return contribution
+
+'''
+Policy Evaluation
+Method to evaluate a given Policy
+'''
+def evaluate_policy(policy):
+
+    n_pre_states = len(pre_decision_states)
+
+    for pre_dec in range(0, n_pre_states):
+
+        equitations = []
+
+        pre_dec_v_list = []
+
+        pre_dec_v_list.append(pre_dec)
+
+        # Initialize matrix for linear euitation system
+        v = np.matrix(np.zeros(len(pre_decision_states)+1,
+                           len(pre_decision_states)+1))
+
+        for pre_dec_v in pre_dec_v_list:
+
+            contribution = calc_contribution(pre_dec, policy[pre_dec])
+
+
 create_tree()
 
 create_random_policy()
