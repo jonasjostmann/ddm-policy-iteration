@@ -135,8 +135,8 @@ def create_random_policy():
 
     return policy
 
-    print(policy)
-    print(counter)
+    #print(policy)
+    #print(counter)
 
 
 '''
@@ -180,8 +180,8 @@ def evaluate_policy(policy):
 
             v[pre_dec_v, n_pre_states] = -1 * contribution
 
-            print(contribution)
-            print(policy)
+            #print(contribution)
+            #print(policy)
 
             for row in post_decision_states[policy[pre_dec]]["trans_mat"].index:
 
@@ -233,10 +233,71 @@ def evaluate_policy(policy):
 
         x = np.linalg.lstsq(a, b, rcond=-1)[0]
 
-        print("Ergebnis: ") # TODO: Problem 7x 8 Matrix muss aber 7x7 matrix sein
-        print(x)
+        #print("Ergebnis: ") # TODO: Problem 7x 8 Matrix muss aber 7x7 matrix sein
+        #print(x)
 
         pre_decision_states[pre_dec]["v"] = x[pre_dec]
+
+'''
+Policy Improvement
+Method to improve current Policy
+'''
+def improve_policy(policy):
+
+    policy_temp = policy
+
+    n_pre_states = len(pre_decision_states)
+
+    for pre_dec in range(0, n_pre_states):
+
+        pre_dec_state = pre_decision_states[pre_dec]
+
+        action_values = [None]*len(pre_dec_state["trans_mat"].iloc[0, :])
+
+        i=0
+
+        for a in range(0, len(pre_dec_state["trans_mat"].iloc[0, :])):
+            print(a)
+            print(pre_dec_state["trans_mat"].iloc[0, a])
+            post_state = pre_dec_state["trans_mat"].iloc[0, a][0]["post_state"]
+
+            action_values.append(calc_contribution(pre_dec, post_state))
+
+            for row in post_decision_states[post_state]["trans_mat"].index:
+
+                row = row[0]
+
+                col_name = post_decision_states[post_state]["trans_mat"].columns[0]
+
+                new_pre_state_id = post_decision_states[post_state]["trans_mat"].loc[row, col_name][0]['pre_state']
+                new_pre_state = pre_decision_states[new_pre_state_id]
+
+                post_price = post_decision_states[post_state]["state"][0]
+                pre_price = new_pre_state["state"][0]
+
+                print("A")
+                print(prob_matrix.loc[post_price, pre_price])
+                print("B")
+                print(new_pre_state['v'])
+
+                print(action_values[i])
+
+                action_values[i] += prob_matrix.loc[post_price, pre_price] * new_pre_state['v']
+
+            i = i + 1
+
+
+        best_a = np.argmax(action_values)
+
+        #policy_temp[pre_dec] = pre_decision_states["TransMatrix"][1, best_a]["post_decision_state"]
+
+
+
+    if policy_temp != policy:
+        policy = policy_temp
+
+    return policy
+
 
 
 #%% Create the tree
@@ -248,5 +309,9 @@ policy = create_random_policy()
 #%% Evaluate_policy
 
 evaluate_policy(policy)
+
+#%% Policy Improvement
+
+improve_policy(policy)
 
 
