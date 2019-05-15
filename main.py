@@ -24,7 +24,7 @@ energy_levels = np.arange(energy_min, energy_max+1, energy_step_size)
 # Definition of the Probabilities from one Price Level to another
 prob_matrix = pd.DataFrame([[0.3, 0.7], [0.7, 0.3]], columns=price_levels, index=price_levels)
 
-max_time = 1
+max_time = 2
 time_horizon = np.arange(1, max_time+1)
 
 pre_decision_states = []
@@ -106,7 +106,9 @@ def create_tree():
                 # Increase index of post_decision_states
                 n_post_states =  n_post_states +1
 
-        last_pre_states = last_pre_states_temp
+        last_pre_states = last_pre_states_temp.copy()
+
+    print("finished tree")
 
 
 '''
@@ -132,6 +134,8 @@ def create_random_policy():
             random_state = random.choice(pre_decision_states[pre_state]["trans_mat"].columns.levels[0])
 
             policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].iloc[0, random_state][0]["post_state"]
+
+    print("finished random policy")
 
     return policy
 
@@ -168,7 +172,11 @@ def evaluate_policy(policy):
         v = np.zeros((len(pre_decision_states),
                            len(pre_decision_states)+1))
 
-        for pre_dec_v in pre_dec_v_list:
+        for pre_dec_v in pre_dec_v_list[:]:
+
+            # Check if List is not None in order to prevent errors
+            if pre_dec_v_list is not None:
+                pre_dec_v_list.remove(pre_dec_v)
 
             if pre_decision_states[pre_dec_v]["trans_mat"] is None:
                 pre_decision_states[pre_dec_v]["v"] = 0
@@ -179,9 +187,6 @@ def evaluate_policy(policy):
             v[pre_dec_v, pre_dec_v] = -1
 
             v[pre_dec_v, n_pre_states] = -1 * contribution
-
-            #print(contribution)
-            #print(policy)
 
             for row in post_decision_states[policy[pre_dec]]["trans_mat"].index:
 
@@ -214,10 +219,16 @@ def evaluate_policy(policy):
                 else:
                     v[pre_dec_v, pre_v_state] = prob_matrix.loc[pre_dec_price,
                                                             pre_v_state_price]
-                    pre_dec_v_list.add(pre_v_state)
+
+                    # Check if List is None to prevent errors
+                    if pre_dec_v_list is None:
+                        pre_dec_v_list = []
+                    pre_dec_v_list.append(pre_v_state)
+
+        print(pre_dec_v_list)
 
         # TODO: Herausfiltern alle Zeilen, welche NUR ZERO Werte haben, um calc zu verschnellern
-
+        # TODO: Teil mit lines entfernen
         lines=[]
 
         for i in range(0, len(v[:, 0])):
@@ -242,10 +253,10 @@ Method to improve current Policy
 # TODO: Call improve policy maybe recursive? To improve until no change in polcy
 def improve_policy(policy):
 
-    print(policy)
+    #print(policy)
     # Todo: Auf copys achten: hier wurde z.B. auf das gleiche Objekt referenziert
     policy_temp = policy.copy()
-    print(policy_temp)
+    #print(policy_temp)
 
     n_pre_states = len(pre_decision_states)
 
