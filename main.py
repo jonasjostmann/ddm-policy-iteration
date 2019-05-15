@@ -20,7 +20,7 @@ energy_step_size = 1
 energy_levels = np.arange(energy_min, energy_max+1, energy_step_size)
 
 # TODO: generate Probabilities automatically with seed to create reproducable results (Durchführbar mit ziehen ohne
-# Todo: ohne zurücklegen aus einem Zustandsraum, den man vorher definiert hat
+# TODO: ohne zurücklegen aus einem Zustandsraum, den man vorher definiert hat
 # Definition of the Probabilities from one Price Level to another
 prob_matrix = pd.DataFrame([[0.3, 0.7], [0.7, 0.3]], columns=price_levels, index=price_levels)
 
@@ -230,11 +230,8 @@ def evaluate_policy(policy):
 
         b = v[:, n_pre_states]
 
-
+        # lstq solver is used because normal solver canot handle singular matrices
         x = np.linalg.lstsq(a, b, rcond=-1)[0]
-
-        #print("Ergebnis: ") # TODO: Problem 7x 8 Matrix muss aber 7x7 matrix sein
-        #print(x)
 
         pre_decision_states[pre_dec]["v"] = x[pre_dec]
 
@@ -242,9 +239,13 @@ def evaluate_policy(policy):
 Policy Improvement
 Method to improve current Policy
 '''
+# TODO: Call improve policy maybe recursive? To improve until no change in polcy
 def improve_policy(policy):
 
-    policy_temp = policy
+    print(policy)
+    # Todo: Auf copys achten: hier wurde z.B. auf das gleiche Objekt referenziert
+    policy_temp = policy.copy()
+    print(policy_temp)
 
     n_pre_states = len(pre_decision_states)
 
@@ -252,49 +253,52 @@ def improve_policy(policy):
 
         pre_dec_state = pre_decision_states[pre_dec]
 
-        action_values = [None]*len(pre_dec_state["trans_mat"].iloc[0, :])
+        # Improve policy only for pre decision states where a decision can be made
+        if pre_dec_state["trans_mat"] is not None:
 
-        i=0
+            action_values = [None]*len(pre_dec_state["trans_mat"].iloc[0, :])
 
-        for a in range(0, len(pre_dec_state["trans_mat"].iloc[0, :])):
-            print(a)
-            print(pre_dec_state["trans_mat"].iloc[0, a])
-            post_state = pre_dec_state["trans_mat"].iloc[0, a][0]["post_state"]
+            i=0
 
-            action_values.append(calc_contribution(pre_dec, post_state))
+            for a in range(0, len(pre_dec_state["trans_mat"].iloc[0, :])):
 
-            for row in post_decision_states[post_state]["trans_mat"].index:
+                post_state = pre_dec_state["trans_mat"].iloc[0, a][0]["post_state"]
 
-                row = row[0]
+                action_values[a] = calc_contribution(pre_dec, post_state)
 
-                col_name = post_decision_states[post_state]["trans_mat"].columns[0]
+                for row in post_decision_states[post_state]["trans_mat"].index:
 
-                new_pre_state_id = post_decision_states[post_state]["trans_mat"].loc[row, col_name][0]['pre_state']
-                new_pre_state = pre_decision_states[new_pre_state_id]
+                    row = row[0]
 
-                post_price = post_decision_states[post_state]["state"][0]
-                pre_price = new_pre_state["state"][0]
+                    col_name = post_decision_states[post_state]["trans_mat"].columns[0]
 
-                print("A")
-                print(prob_matrix.loc[post_price, pre_price])
-                print("B")
-                print(new_pre_state['v'])
+                    new_pre_state_id = post_decision_states[post_state]["trans_mat"].loc[row, col_name][0]['pre_state']
+                    new_pre_state = pre_decision_states[new_pre_state_id]
 
-                print(action_values[i])
+                    post_price = post_decision_states[post_state]["state"][0]
+                    pre_price = new_pre_state["state"][0]
 
-                action_values[i] += prob_matrix.loc[post_price, pre_price] * new_pre_state['v']
+                    action_values[i] += prob_matrix.loc[post_price, pre_price] * new_pre_state['v']
 
-            i = i + 1
+                i = i + 1
 
 
-        best_a = np.argmax(action_values)
+            best_a = np.argmax(action_values)
+            print(best_a)
 
-        #policy_temp[pre_dec] = pre_decision_states["TransMatrix"][1, best_a]["post_decision_state"]
+            policy_temp[pre_dec] = pre_decision_states[pre_dec]["trans_mat"].iloc[0, best_a][0]["post_state"]
 
 
 
     if policy_temp != policy:
-        policy = policy_temp
+        print("New Policy is choosen")
+        policy = policy_temp.copy()
+    else:
+        print("Old")
+
+
+    print(policy)
+    print(policy_temp)
 
     return policy
 
