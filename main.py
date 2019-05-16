@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import random
-from scipy.sparse.linalg import lsqr
 
 # Initialize empty policy
 # Policy will be build as an array, which indices are the id of pre decision states and reference to the id of the next
@@ -24,7 +23,7 @@ energy_levels = np.arange(energy_min, energy_max+1, energy_step_size)
 # Definition of the Probabilities from one Price Level to another
 prob_matrix = pd.DataFrame([[0.3, 0.7], [0.7, 0.3]], columns=price_levels, index=price_levels)
 
-max_time = 2
+max_time = 3
 time_horizon = np.arange(1, max_time+1)
 
 pre_decision_states = []
@@ -108,8 +107,6 @@ def create_tree():
 
         last_pre_states = last_pre_states_temp.copy()
 
-    print("finished tree")
-
 
 '''
 Create random Policy
@@ -135,12 +132,8 @@ def create_random_policy():
 
             policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].iloc[0, random_state][0]["post_state"]
 
-    print("finished random policy")
-
     return policy
 
-    #print(policy)
-    #print(counter)
 
 
 '''
@@ -225,8 +218,6 @@ def evaluate_policy(policy):
                         pre_dec_v_list = []
                     pre_dec_v_list.append(pre_v_state)
 
-        print(pre_dec_v_list)
-
         # TODO: Herausfiltern alle Zeilen, welche NUR ZERO Werte haben, um calc zu verschnellern
         # TODO: Teil mit lines entfernen
         lines=[]
@@ -234,8 +225,6 @@ def evaluate_policy(policy):
         for i in range(0, len(v[:, 0])):
             if(np.all(np.all(v[:,i] == 0, axis = 0))):
                 lines.append(i)
-
-
 
         a = v[:, range(0, n_pre_states)]
 
@@ -253,10 +242,8 @@ Method to improve current Policy
 # TODO: Call improve policy maybe recursive? To improve until no change in polcy
 def improve_policy(policy):
 
-    #print(policy)
     # Todo: Auf copys achten: hier wurde z.B. auf das gleiche Objekt referenziert
     policy_temp = policy.copy()
-    #print(policy_temp)
 
     n_pre_states = len(pre_decision_states)
 
@@ -295,38 +282,41 @@ def improve_policy(policy):
 
 
             best_a = np.argmax(action_values)
-            print(best_a)
 
             policy_temp[pre_dec] = pre_decision_states[pre_dec]["trans_mat"].iloc[0, best_a][0]["post_state"]
 
-
-
-    if policy_temp != policy:
-        print("New Policy is choosen")
-        policy = policy_temp.copy()
-    else:
-        print("Old")
-
-
-    print(policy)
-    print(policy_temp)
+    # New generated Policy
+    policy = policy_temp.copy()
 
     return policy
 
 
+def main():
+    # Create the tree
+    create_tree()
 
-#%% Create the tree
-create_tree()
+    # Create a random policy
+    policy = create_random_policy()
 
-#%% Create a random policy
-policy = create_random_policy()
+    counter = 0
 
-#%% Evaluate_policy
+    while(True):
+        print(counter)
+        counter = counter +1
+        # Evaluate_policy
+        evaluate_policy(policy)
 
-evaluate_policy(policy)
+        # Policy Improvement
+        policy_new = improve_policy(policy).copy()
 
-#%% Policy Improvement
+        print(policy)
+        print(policy_new)
 
-improve_policy(policy)
+        if(policy_new == policy):
+            break
+
+        policy=policy_new
 
 
+if __name__== "__main__":
+  main()
