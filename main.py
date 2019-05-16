@@ -5,11 +5,13 @@ import time
 from policyiter import evaluation, improvement, treebuilder, config
 
 
-'''
-Create random Policy
-Method to create a random Policy
-'''
 def create_random_policy(pre_decision_states, post_decision_states):
+    """
+    Method to create a random Policy
+    :param pre_decision_states: Pre-Decision states represented by an array
+    :param post_decision_states: Post-Decision states represented by an array
+    :return: policy represented by an array (indecis: Pre-Decision states, values: Post-Decision states)
+    """
     # Number of pre decision states to iterate over
     n_pre_states = len(pre_decision_states)
 
@@ -25,7 +27,8 @@ def create_random_policy(pre_decision_states, post_decision_states):
             random_state = random.choice(pre_decision_states[pre_state]["trans_mat"].columns.levels[0])
             price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
 
-            policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].loc[price_index][random_state].iloc[0][0]["post_state"]
+            policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].loc[price_index][random_state].iloc[0][0][
+                "post_state"]
 
     return policy
 
@@ -49,7 +52,7 @@ def main():
     # Definition of the Probabilities from one Price Level to another
     TRANS_PROB = config.TRANS_PROB
     # Check if dimensions are specified correct
-    if len(TRANS_PROB)!=len(price_levels):
+    if len(TRANS_PROB) != len(price_levels):
         raise ValueError('You have to specify a transition probability for each Price Level!')
     PROB_MATRIX = pd.DataFrame(TRANS_PROB, columns=price_levels, index=price_levels)
 
@@ -103,8 +106,8 @@ def main():
 
         if (policy_new == policy):
             stop_time_policy_iteration = time.process_time()
-            time_policy_iteration = stop_time_policy_iteration-start_time_policy_iteration
-            time_tree = stop_time_tree-start_time_tree
+            time_policy_iteration = stop_time_policy_iteration - start_time_policy_iteration
+            time_tree = stop_time_tree - start_time_tree
             print(f"\nPOLICY CONVERGED!\n"
                   "\n"
                   f"# Pre-Decision-States:                  {len(pre_decision_states)}"
