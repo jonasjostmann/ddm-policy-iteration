@@ -26,7 +26,7 @@ def create_random_policy(pre_decision_states, post_decision_states):
             random_state = random.choice(pre_decision_states[pre_state]["trans_mat"].columns.levels[0])
             price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
 
-            policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].loc[price_index, random_state][0][0]["post_state"]
+            policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].loc[price_index][random_state].iloc[0][0]["post_state"]
 
     return policy
 
@@ -42,7 +42,7 @@ def main():
 
     # Definition of possible Energy levels
     energy_min = 1
-    energy_max = 2
+    energy_max = 3
     energy_step_size = 1
     energy_levels = np.arange(energy_min, energy_max + energy_step_size, energy_step_size)
 

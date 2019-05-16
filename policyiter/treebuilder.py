@@ -42,7 +42,7 @@ def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, 
                 price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
 
                 # Save Post decision state in pre-decision state
-                pre_decision_states[pre_state]["trans_mat"].loc[price_index, post_state][0][0]["post_state"] = n_post_states
+                pre_decision_states[pre_state]["trans_mat"].loc[price_index][post_state].iloc[0][0]["post_state"] = n_post_states
 
                 # Initialize Dataframe for post_decision_state
                 post_decision_states[n_post_states]["trans_mat"] = pd.DataFrame(columns=[post_state],
