@@ -18,3 +18,6 @@ MAX_TIME = 3
 # Definition of states: [Price, Energy-Level]
 INITIAL_STATE = [1, 0]
 
+# Set a seed for the random policy creation
+SEED = 42
+

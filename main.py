@@ -24,6 +24,7 @@ def create_random_policy(pre_decision_states, post_decision_states):
 
         # Last States have an empty trans_mat because the time horizon is reached and no decision can be made
         if (pre_decision_states[pre_state]["trans_mat"] is not None):
+            random.seed(config.SEED)
             random_state = random.choice(pre_decision_states[pre_state]["trans_mat"].columns.levels[0])
             price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
 
