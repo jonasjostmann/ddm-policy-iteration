@@ -26,6 +26,7 @@ def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, 
             pre_decision_states[pre_state]["trans_mat"] = pre_decision_states[pre_state]["trans_mat"].astype('object')
 
             # Insert None Values to build structure of DataFrame
+            # Iterate over all energy levels represented by their index in this for loop
             for e_l in range(0, len(energy_levels)):
                 # TODO: Hier ist eine Abhängigkeit zum Wert des Energy States
                 #  -> Umwandeln in Loc und heraussuchen des Price wertes vorher
@@ -39,9 +40,9 @@ def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, 
                                              "state": [pre_decision_states[pre_state]["state"][0], post_state],
                                              "trans_mat": None})
 
-                price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
-
                 # Save Post decision state in pre-decision state
+                # To be able to use loc price value of row must be read
+                price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
                 pre_decision_states[pre_state]["trans_mat"].loc[price_index][post_state].iloc[0][0]["post_state"] = n_post_states
 
                 # Initialize Dataframe for post_decision_state
