@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import random
-from policyiter import evaluation, improvement, treebuilder
+import time
+from policyiter import evaluation, improvement, treebuilder, config
 
 
 '''
@@ -20,9 +21,7 @@ def create_random_policy(pre_decision_states, post_decision_states):
     for pre_state in range(0, n_pre_states):
 
         # Last States have an empty trans_mat because the time horizon is reached and no decision can be made
-        if (pre_decision_states[pre_state]["trans_mat"] is None):
-            counter = counter + 1
-        else:
+        if (pre_decision_states[pre_state]["trans_mat"] is not None):
             random_state = random.choice(pre_decision_states[pre_state]["trans_mat"].columns.levels[0])
             price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
 
@@ -31,54 +30,61 @@ def create_random_policy(pre_decision_states, post_decision_states):
     return policy
 
 
-
 def main():
 
     # Definition of possible Price levels
-    price_min = 1
-    price_max = 2
-    price_step_size = 1
-    price_levels = np.arange(price_min, price_max + price_step_size, price_step_size)
+    PRICE_MIN = config.PRICE_MIN
+    PRICE_MAX = config.PRICE_MAX
+    PRICE_STEP_SIZE = config.PRICE_STEP_SIZE
+    price_levels = np.arange(PRICE_MIN, PRICE_MAX + PRICE_STEP_SIZE, PRICE_STEP_SIZE)
 
     # Definition of possible Energy levels
-    energy_min = 1
-    energy_max = 3
-    energy_step_size = 1
-    energy_levels = np.arange(energy_min, energy_max + energy_step_size, energy_step_size)
+    ENERGY_MIN = config.ENERGY_MIN
+    ENERGY_MAX = config.ENERGY_MAX
+    ENERGY_STEP_SIZE = config.ENERGY_STEP_SIZE
+    energy_levels = np.arange(ENERGY_MIN, ENERGY_MAX + ENERGY_STEP_SIZE, ENERGY_STEP_SIZE)
 
     # TODO: generate Probabilities automatically with seed to create reproducable results (Durchführbar mit ziehen ohne
     # TODO: ohne zurücklegen aus einem Zustandsraum, den man vorher definiert hat
     # Definition of the Probabilities from one Price Level to another
-    PROB_MATRIX = pd.DataFrame([[0.3, 0.7], [0.7, 0.3]], columns=price_levels, index=price_levels)
+    TRANS_PROB = config.TRANS_PROB
+    # Check if dimensions are specified correct
+    if len(TRANS_PROB)!=len(price_levels):
+        raise ValueError('You have to specify a transition probability for each Price Level!')
+    PROB_MATRIX = pd.DataFrame(TRANS_PROB, columns=price_levels, index=price_levels)
 
-    max_time = 3
-    time_horizon = np.arange(1, max_time + 1)
+    MAX_TIME = config.MAX_TIME
+    time_horizon = np.arange(1, MAX_TIME + 1)
 
     pre_decision_states = []
     post_decision_states = []
 
     # initialize start state
     # Definition of states: [Price, Energy-Level]
-    pre_decision_states.append({"v": None, "state": [1, 0], "trans_mat": None})
+    INITIAL_STATE = config.INITIAL_STATE
+    pre_decision_states.append({"v": None, "state": INITIAL_STATE, "trans_mat": None})
 
     # initialize empty policy
     policy = []
 
     # Create the tree
+    start_time_tree = time.process_time()
     pre_decision_states, post_decision_states = treebuilder.create_tree(time_horizon,
                                                                         energy_levels,
                                                                         price_levels,
                                                                         pre_decision_states,
                                                                         post_decision_states)
+    stop_time_tree = time.process_time()
 
     # Create a random policy
     policy = create_random_policy(pre_decision_states, post_decision_states)
 
     counter = 0
 
+    start_time_policy_iteration = time.process_time()
     while (True):
-        print(counter)
         counter = counter + 1
+        print(f"Iteration: #{counter}")
 
         # Evaluate_policy
         pre_decision_states, post_decision_states = evaluation.evaluate_policy(policy,
@@ -96,6 +102,24 @@ def main():
         print(policy_new)
 
         if (policy_new == policy):
+            stop_time_policy_iteration = time.process_time()
+            time_policy_iteration = stop_time_policy_iteration-start_time_policy_iteration
+            time_tree = stop_time_tree-start_time_tree
+            print(f"\nPOLICY CONVERGED!\n"
+                  "\n"
+                  f"# Pre-Decision-States:                  {len(pre_decision_states)}"
+                  "\n"
+                  f"# Post-Decision-States:                 {len(post_decision_states)}"
+                  "\n"
+                  f"Different Price Levels:                 {len(price_levels)}"
+                  "\n"
+                  f"Different Energy Levels:                {len(energy_levels)}"
+                  "\n"
+                  f"Time for building the tree (Seconds):   {time_tree}"
+                  "\n"
+                  f"Time for Policy Iteration (Seconds):    {time_policy_iteration}"
+                  "\n"
+                  f"# Iterations:                           {counter}")
             break
 
         policy = policy_new
