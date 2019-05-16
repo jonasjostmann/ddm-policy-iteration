@@ -7,16 +7,16 @@ import random
 # post-decision state to imply the decision which were made
 
 # Definition of possible Price levels
-price_min = 1
-price_max = 2
-price_step_size = 1
-price_levels = np.arange(price_min, price_max + 1, price_step_size)
+price_min = 2
+price_max = 2.5
+price_step_size = 0.5
+price_levels = np.arange(price_min, price_max + price_step_size, price_step_size)
 
 # Definition of possible Energy levels
-energy_min = 0
-energy_max = 2
-energy_step_size = 1
-energy_levels = np.arange(energy_min, energy_max + 1, energy_step_size)
+energy_min = 3
+energy_max = 4
+energy_step_size = 0.5
+energy_levels = np.arange(energy_min, energy_max + energy_step_size, energy_step_size)
 
 # TODO: generate Probabilities automatically with seed to create reproducable results (Durchführbar mit ziehen ohne
 # TODO: ohne zurücklegen aus einem Zustandsraum, den man vorher definiert hat
@@ -31,7 +31,7 @@ post_decision_states = []
 
 # initialize start state
 # Definition of states: [Price, Energy-Level]
-pre_decision_states.append({"v": None, "state": [1, 0], "trans_mat": None})
+pre_decision_states.append({"v": None, "state": [2, 3], "trans_mat": None})
 
 # initialize empty policy
 policy = []
@@ -63,7 +63,7 @@ def create_tree():
             pre_decision_states[pre_state]["trans_mat"] = pre_decision_states[pre_state]["trans_mat"].astype('object')
 
             # Insert None Values to build structure of DataFrame
-            for e_l in energy_levels:
+            for e_l in range(0, len(energy_levels)):
                 # TODO: Hier ist eine Abhängigkeit zum Wert des Energy States
                 #  -> Umwandeln in Loc und heraussuchen des Price wertes vorher
                 pre_decision_states[pre_state]["trans_mat"].iloc[0, e_l] = [dict(v=None, post_state=None)]
@@ -76,8 +76,10 @@ def create_tree():
                                              "state": [pre_decision_states[pre_state]["state"][0], post_state],
                                              "trans_mat": None})
 
+                price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
+
                 # Save Post decision state in pre-decision state
-                pre_decision_states[pre_state]["trans_mat"].iloc[0, post_state][0]["post_state"] = n_post_states
+                pre_decision_states[pre_state]["trans_mat"].loc[price_index, post_state][0][0]["post_state"] = n_post_states
 
                 # Initialize Dataframe for post_decision_state
                 post_decision_states[n_post_states]["trans_mat"] = pd.DataFrame(columns=[post_state],
@@ -132,7 +134,9 @@ def create_random_policy():
         else:
             random_state = random.choice(pre_decision_states[pre_state]["trans_mat"].columns.levels[0])
 
-            policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].iloc[0, random_state][0]["post_state"]
+            price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
+
+            policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].loc[price_index, random_state][0][0]["post_state"]
 
     return policy
 
