@@ -91,15 +91,15 @@ def main():
         print(f"Iteration: #{counter}")
 
         # Evaluate_policy
-        pre_decision_states, post_decision_states = evaluation.evaluate_policy(policy,
-                                                                               pre_decision_states,
-                                                                               post_decision_states,
-                                                                               PROB_MATRIX)
+        pre_decision_states, post_decision_states = evaluation.evaluate_policy(policy.copy(),
+                                                                               pre_decision_states.copy(),
+                                                                               post_decision_states.copy(),
+                                                                               PROB_MATRIX.copy())
 
         # Policy improvement
         policy_new = improvement.improve_policy(policy,
-                                                pre_decision_states,
-                                                post_decision_states,
+                                                pre_decision_states.copy(),
+                                                post_decision_states.copy(),
                                                 PROB_MATRIX).copy()
 
         print(policy)
@@ -123,11 +123,14 @@ def main():
                   "\n"
                   f"Time for Policy Iteration (Seconds):    {time_policy_iteration}"
                   "\n"
-                  f"# Iterations:                           {counter}")
+                  f"# Iterations:                           {counter}"
+                  "\n"
+                  f"Chosen Initial State:                   Price: {INITIAL_STATE[0]}, Energy-Level: {INITIAL_STATE[1]}"
+                  "\n"
+                  f"Expected Reward for Initial State:      {pre_decision_states[0]['v']}")
             break
 
         policy = policy_new
-
 
 if __name__ == "__main__":
     main()

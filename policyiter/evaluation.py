@@ -48,7 +48,7 @@ def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matr
             contribution = calc_contribution(pre_dec, policy[pre_dec], pre_decision_states, post_decision_states)
 
             # Set to -1 in order to calculate the corresponding value in linear equation system
-            # TRANSFORMATION STEPS
+            # TRANSFORMATION STEPS IN ORDER TO CALC: Vi = contri(i) + wj * Vj + ... + wn * Vn
             v[pre_dec_v, pre_dec_v] = -1
             v[pre_dec_v, n_pre_states] = -1 * contribution
 
@@ -58,9 +58,11 @@ def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matr
                 # Due to the indexing issue of columns
                 row = row[0]
 
-                # Get necessary indecis and values for further calculation in order to save space
+                # Get necessary indices and values for further calculation in order to save space
                 pre_v_cols = post_decision_states[policy[pre_dec]]["trans_mat"].columns[0]
+                # New pre_state which is reached with the probability prob_matrix[pre_dec_price][pre_v_price]
                 pre_v_state = post_decision_states[policy[pre_dec]]["trans_mat"].loc[row, pre_v_cols][0]['pre_state']
+                # Expected V-Value of this pre_decision state (Contribution of decision (Policy) + Expected Contributions)
                 pre_v = pre_decision_states[pre_v_state]['v']
                 pre_v_state_price = pre_decision_states[pre_v_state]["state"][0]
                 pre_dec_price = pre_decision_states[pre_dec]["state"][0]
@@ -71,6 +73,8 @@ def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matr
                     v[pre_dec_v, pre_v_state] = prob_matrix.loc[pre_dec_price,
                                                                 pre_v_state_price]
 
+                    # Index n_pre_states leads to last column of matrix (represents the result of this line of the
+                    # equation
                     v[pre_v_state, n_pre_states] = pre_decision_states[pre_v_state]["v"]
                     v[pre_v_state, pre_v_state] = 1
 
@@ -108,5 +112,7 @@ def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matr
         x = np.linalg.lstsq(a, b, rcond=-1)[0]
 
         pre_decision_states[pre_dec]["v"] = x[pre_dec]
+
+        # TODO: Calculate expected V-Value of post decision states for trans Matrix
 
     return pre_decision_states, post_decision_states

@@ -19,11 +19,11 @@ def improve_policy(policy, pre_decision_states, post_decision_states, prob_matri
         # Improve policy only for pre decision states where a decision can be made
         if pre_dec_state["trans_mat"] is not None:
 
+            # Initialize action_values array which holds the v-value
+            # for each of the possible decisions in the pre_state
             action_values = [None] * len(pre_dec_state["trans_mat"].iloc[0, :])
 
             # Counter for the decision index (represented by the post_state at this location in trans_matrix)
-            i = 0
-
             for a in range(0, len(pre_dec_state["trans_mat"].iloc[0, :])):
 
                 post_state = pre_dec_state["trans_mat"].iloc[0, a][0]["post_state"]
@@ -44,9 +44,8 @@ def improve_policy(policy, pre_decision_states, post_decision_states, prob_matri
                     post_price = post_decision_states[post_state]["state"][0]
                     pre_price = new_pre_state["state"][0]
 
-                    action_values[i] += prob_matrix.loc[post_price, pre_price] * new_pre_state['v']
+                    action_values[a] += prob_matrix.loc[post_price, pre_price] * new_pre_state['v']
 
-                i = i + 1
 
             best_a = np.argmax(action_values)
 
