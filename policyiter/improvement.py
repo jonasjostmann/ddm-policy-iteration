@@ -7,6 +7,8 @@ Method to improve current Policy
 '''
 # TODO: Call improve policy maybe recursive? To improve until no change in polcy
 def improve_policy(policy, pre_decision_states, post_decision_states, prob_matrix):
+    print("\nImprove current Policy...")
+
     # Todo: Auf copys achten: hier wurde z.B. auf das gleiche Objekt referenziert
     policy_temp = policy.copy()
 
@@ -53,5 +55,7 @@ def improve_policy(policy, pre_decision_states, post_decision_states, prob_matri
 
     # New generated Policy
     policy = policy_temp.copy()
+
+    print("Policy was successfully improved!\n")
 
     return policy

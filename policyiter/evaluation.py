@@ -20,6 +20,9 @@ Policy Evaluation
 Method to evaluate a given Policy
 '''
 def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matrix):
+
+    print("\n Policy is evaluated...")
+
     n_pre_states = len(pre_decision_states)
 
     for pre_dec in range(0, n_pre_states):
@@ -114,5 +117,7 @@ def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matr
         pre_decision_states[pre_dec]["v"] = x[pre_dec]
 
         # TODO: Calculate expected V-Value of post decision states for trans Matrix
+
+    print("Evaluation completed successfully!")
 
     return pre_decision_states, post_decision_states

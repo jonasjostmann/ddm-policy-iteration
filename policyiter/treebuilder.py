@@ -8,6 +8,9 @@ Method to create the tree
 # TODO: in order to be able to differ in discretization step size change all references to which need normal numbers
 # TODO: Add Probabilities to post decision states
 def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, post_decision_states):
+
+    print("\nBuilding the tree...")
+
     last_post = []
     last_pre_states = [0]
 
@@ -73,5 +76,7 @@ def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, 
                 n_post_states = n_post_states + 1
 
         last_pre_states = last_pre_states_temp.copy()
+
+    print("Tree was sucessfully built!\n")
 
     return pre_decision_states, post_decision_states
