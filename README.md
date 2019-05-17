@@ -1,5 +1,7 @@
 # Dynamic Decision Making in Energy Systems
 
+#### A solution approach for a simplified Energy System using Policy Iteration  
+
 Since, Energy is an equally expensive and important good nowadays, it is crucial to optimize its utilization.
 Because energy prices are changing volatile, in some cases an energy storage is a good solution to overcome this issue and save money. 
 The idea behind this approach is seems to be very simple: Energy is bought from the market when the prices are low and is stored in
