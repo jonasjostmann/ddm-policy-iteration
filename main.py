@@ -48,6 +48,9 @@ def main():
     ENERGY_STEP_SIZE = config.ENERGY_STEP_SIZE
     energy_levels = np.arange(ENERGY_MIN, ENERGY_MAX + ENERGY_STEP_SIZE, ENERGY_STEP_SIZE)
 
+    # Efficiency Coefficient
+    EFF_COEFF = config.EFF_COEFF
+
     # TODO: generate Probabilities automatically with seed to create reproducable results (Durchführbar mit ziehen ohne
     # TODO: ohne zurücklegen aus einem Zustandsraum, den man vorher definiert hat
     # Definition of the Probabilities from one Price Level to another
@@ -94,13 +97,15 @@ def main():
         pre_decision_states, post_decision_states = evaluation.evaluate_policy(policy.copy(),
                                                                                pre_decision_states.copy(),
                                                                                post_decision_states.copy(),
-                                                                               PROB_MATRIX.copy())
+                                                                               PROB_MATRIX.copy(),
+                                                                               EFF_COEFF)
 
         # Policy improvement
         policy_new = improvement.improve_policy(policy,
                                                 pre_decision_states.copy(),
                                                 post_decision_states.copy(),
-                                                PROB_MATRIX).copy()
+                                                PROB_MATRIX,
+                                                EFF_COEFF).copy()
 
         print(policy)
         print(policy_new)

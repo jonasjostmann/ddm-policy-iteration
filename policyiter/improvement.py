@@ -6,7 +6,7 @@ Policy Improvement
 Method to improve current Policy
 '''
 # TODO: Call improve policy maybe recursive? To improve until no change in polcy
-def improve_policy(policy, pre_decision_states, post_decision_states, prob_matrix):
+def improve_policy(policy, pre_decision_states, post_decision_states, prob_matrix, eff_coeff):
     print("\nImprove current Policy...")
 
     # Todo: Auf copys achten: hier wurde z.B. auf das gleiche Objekt referenziert
@@ -33,7 +33,8 @@ def improve_policy(policy, pre_decision_states, post_decision_states, prob_matri
                 action_values[a] = evaluation.calc_contribution(pre_dec,
                                                                 post_state,
                                                                 pre_decision_states,
-                                                                post_decision_states)
+                                                                post_decision_states,
+                                                                eff_coeff)
 
                 for row in post_decision_states[post_state]["trans_mat"].index:
                     row = row[0]

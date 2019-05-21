@@ -21,3 +21,6 @@ INITIAL_STATE = [1, 0]
 # Set a seed for the random policy creation
 SEED = 42
 
+# EFFICENCY COEFFICIENT MUST BE BETWEEN 0 AND 1
+EFF_COEFF = 0.5
+

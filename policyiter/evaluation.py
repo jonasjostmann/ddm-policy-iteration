@@ -6,10 +6,10 @@ import numpy as np
 Calculate Contribution
 Method to calculate the returned contribution by making a decision a.
 '''
-def calc_contribution(pre_state, post_state, pre_decision_states, post_decision_states):
+def calc_contribution(pre_state, post_state, pre_decision_states, post_decision_states, eff_coeff):
     # Calculate contribution (Old Energy Level - New Energy Level) * Price per Energy
     contribution = (pre_decision_states[pre_state]["state"][1] - post_decision_states[post_state]["state"][1]) \
-                   * pre_decision_states[pre_state]["state"][0]
+                   * pre_decision_states[pre_state]["state"][0] * eff_coeff
 
     return contribution
 
@@ -19,7 +19,7 @@ def calc_contribution(pre_state, post_state, pre_decision_states, post_decision_
 Policy Evaluation
 Method to evaluate a given Policy
 '''
-def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matrix):
+def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matrix, eff_coeff):
 
     print("\n Policy is evaluated...")
 
@@ -48,7 +48,7 @@ def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matr
                 pre_decision_states[pre_dec_v]["v"] = 0
                 break
 
-            contribution = calc_contribution(pre_dec, policy[pre_dec], pre_decision_states, post_decision_states)
+            contribution = calc_contribution(pre_dec, policy[pre_dec], pre_decision_states, post_decision_states, eff_coeff)
 
             # Set to -1 in order to calculate the corresponding value in linear equation system
             # TRANSFORMATION STEPS IN ORDER TO CALC: Vi = contri(i) + wj * Vj + ... + wn * Vn
