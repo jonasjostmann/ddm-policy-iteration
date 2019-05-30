@@ -51,6 +51,10 @@ def main():
     # Efficiency Coefficient
     EFF_COEFF = config.EFF_COEFF
 
+    # MAX PULL and PUSH
+    MAX_PULL = config.MAX_PULL
+    MAX_PUSH = config.MAX_PUSH
+
     # TODO: generate Probabilities automatically with seed to create reproducable results (Durchführbar mit ziehen ohne
     # TODO: ohne zurücklegen aus einem Zustandsraum, den man vorher definiert hat
     # Definition of the Probabilities from one Price Level to another
@@ -80,7 +84,9 @@ def main():
                                                                         energy_levels,
                                                                         price_levels,
                                                                         pre_decision_states,
-                                                                        post_decision_states)
+                                                                        post_decision_states,
+                                                                        MAX_PULL,
+                                                                        MAX_PUSH)
     stop_time_tree = time.process_time()
 
     # Create a random policy

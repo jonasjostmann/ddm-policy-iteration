@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 '''
 Create tree
@@ -7,7 +7,7 @@ Method to create the tree
 '''
 # TODO: in order to be able to differ in discretization step size change all references to which need normal numbers
 # TODO: Add Probabilities to post decision states
-def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, post_decision_states):
+def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, post_decision_states, max_pull, max_push):
 
     print("\nBuilding the tree...")
 
@@ -23,14 +23,26 @@ def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states, 
         last_pre_states_temp = []
 
         for pre_state in last_pre_states:
-            pre_decision_states[pre_state]["trans_mat"] = pd.DataFrame(columns=[energy_levels],
+
+            # Reduce Possible Energy Levels could be reached by decisions, w.r.t constraints MAX_PULL, MAX_PUSH
+            def check_state_transition(x):
+                diff = pre_decision_states[pre_state]["state"][1]-x
+
+                if((diff > 0 and diff <= max_pull) or (diff < 0 and abs(diff)<= max_push) or diff==0):
+                    return x
+                return None
+
+            possible_energy_levels = np.array(list(map(check_state_transition, energy_levels)))
+            possible_energy_levels = possible_energy_levels[possible_energy_levels!=np.array(None)]
+
+            pre_decision_states[pre_state]["trans_mat"] = pd.DataFrame(columns=[possible_energy_levels],
                                                                        index=[
                                                                            pre_decision_states[pre_state]["state"][0]])
             pre_decision_states[pre_state]["trans_mat"] = pre_decision_states[pre_state]["trans_mat"].astype('object')
 
             # Insert None Values to build structure of DataFrame
             # Iterate over all energy levels represented by their index in this for loop
-            for e_l in range(0, len(energy_levels)):
+            for e_l in range(0, len(possible_energy_levels)):
                 # TODO: Hier ist eine Abhängigkeit zum Wert des Energy States
                 #  -> Umwandeln in Loc und heraussuchen des Price wertes vorher
                 pre_decision_states[pre_state]["trans_mat"].iloc[0, e_l] = [dict(v=None, post_state=None)]
