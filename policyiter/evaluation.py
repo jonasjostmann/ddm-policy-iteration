@@ -8,8 +8,21 @@ Method to calculate the returned contribution by making a decision a.
 '''
 def calc_contribution(pre_state, post_state, pre_decision_states, post_decision_states, eff_coeff):
     # Calculate contribution (Old Energy Level - New Energy Level) * Price per Energy
-    contribution = (pre_decision_states[pre_state]["state"][1] - post_decision_states[post_state]["state"][1]) \
-                   * pre_decision_states[pre_state]["state"][0] * eff_coeff
+
+    contribution = 0
+
+    # If pre_state is smaller then post_state energy level then energy is bought
+    if(pre_decision_states[pre_state]["state"][1]<post_decision_states[post_state]["state"][1]):
+
+        contribution = (pre_decision_states[pre_state]["state"][1] - post_decision_states[post_state]["state"][1]) \
+                       * pre_decision_states[pre_state]["state"][0] * (1/eff_coeff)
+
+    # pre_state is greater then post_state energy level then energy is sold
+    elif (pre_decision_states[pre_state]["state"][1]>post_decision_states[post_state]["state"][1]):
+
+        contribution = (pre_decision_states[pre_state]["state"][1] - post_decision_states[post_state]["state"][1]) \
+                       * pre_decision_states[pre_state]["state"][0] * eff_coeff
+
 
     return contribution
 
