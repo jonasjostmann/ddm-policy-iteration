@@ -51,7 +51,6 @@ def improve_policy(policy, pre_decision_states, post_decision_states, prob_matri
 
 
             best_a = np.argmax(action_values)
-
             policy_temp[pre_dec] = pre_decision_states[pre_dec]["trans_mat"].iloc[0, best_a][0]["post_state"]
 
     # New generated Policy

@@ -92,6 +92,14 @@ def main():
     # Create a random policy
     policy = create_random_policy(pre_decision_states, post_decision_states)
 
+    pre_first, _ = evaluation.evaluate_policy(policy.copy(),
+                                                                           pre_decision_states.copy(),
+                                                                           post_decision_states.copy(),
+                                                                           PROB_MATRIX.copy(),
+                                                                           EFF_COEFF)
+
+    print(pre_first[0]["v"])
+
     counter = 0
 
     start_time_policy_iteration = time.process_time()
@@ -117,6 +125,12 @@ def main():
         print(policy_new)
 
         if (policy_new == policy):
+            # Evaluate_policy
+            pre_decision_states, post_decision_states = evaluation.evaluate_policy(policy.copy(),
+                                                                                   pre_decision_states.copy(),
+                                                                                   post_decision_states.copy(),
+                                                                                   PROB_MATRIX.copy(),
+                                                                                   EFF_COEFF)
             stop_time_policy_iteration = time.process_time()
             time_policy_iteration = stop_time_policy_iteration - start_time_policy_iteration
             time_tree = stop_time_tree - start_time_tree
