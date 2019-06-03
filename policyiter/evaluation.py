@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 
 # TODO: Assumption that contribution of last states in time horizon is zero
 '''
@@ -38,7 +39,7 @@ def evaluate_policy(policy, pre_decision_states, post_decision_states, prob_matr
 
     n_pre_states = len(pre_decision_states)
 
-    for pre_dec in range(0, n_pre_states):
+    for pre_dec in tqdm(range(0, n_pre_states)):
 
         # Initialize List with pre_decision states which are considered to calculate V-Value for Predecision state of
         # current iteration of outer loop
