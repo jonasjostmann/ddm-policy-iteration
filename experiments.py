@@ -4,6 +4,7 @@ import random
 import time
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import csv
 from policyiter import evaluation, improvement, treebuilder, config
 
 
@@ -107,7 +108,7 @@ def main():
     EFF_COEFF = 1
 
     # MAX PULL and PUSH
-    MAX_PULL = 1
+    MAX_PULL = 2
     MAX_PUSH = 2
 
     # Definition of the Probabilities from one Price Level to another
@@ -130,11 +131,14 @@ def main():
     INITIAL_STATE = [1,0]
     pre_decision_states.append({"v": None, "state": INITIAL_STATE, "trans_mat": None})
 
-    n = 5
+    n = 7
     experiment_range = np.arange(1,n,1)
     cost_per_unit = -0.01
 
     profit = []
+    time_list = []
+
+    csv_file_name = f"profitExperimentRange_1-{str(n)}_maxTime_{str(MAX_TIME)}_maxPull_{str(MAX_PULL)}_maxPush_{str(MAX_PUSH)}"
 
     for i in tqdm(experiment_range):
 
@@ -143,6 +147,8 @@ def main():
         ENERGY_MAX = i
         ENERGY_STEP_SIZE = 1
         energy_levels = np.arange(ENERGY_MIN, ENERGY_MAX + ENERGY_STEP_SIZE, ENERGY_STEP_SIZE)
+
+        start_time_iter = time.process_time()
 
         v = search_optimal_policy(time_horizon,
                                   energy_levels,
@@ -155,9 +161,21 @@ def main():
                                   EFF_COEFF,
                                   INITIAL_STATE)
 
-        profit.append(i*cost_per_unit+v)
+        stop_time_iter = time.process_time()
 
-    file_name = "marnginalStorageSize"+ str(MAX_TIME) +"_timeSteps_" + str(max(experiment_range)) + "_eLevels_" + str(ENERGY_STEP_SIZE) + "_stepSize_" + str(MAX_PULL) + "_maxPull_" + str(MAX_PUSH) + "_maxPush"
+        time_iter = stop_time_iter - start_time_iter
+
+        profit.append(i*cost_per_unit+v)
+        time_list.append(time_iter)
+
+        fields = [i, v, profit, time_list]
+
+        with open(f'results/{csv_file_name}', 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow(fields)
+
+
+    file_name = "RemoteMarnginalStorageSize"+ str(MAX_TIME) +"_timeSteps_" + str(max(experiment_range)) + "_eLevels_" + str(ENERGY_STEP_SIZE) + "_stepSize_" + str(MAX_PULL) + "_maxPull_" + str(MAX_PUSH) + "_maxPush"
     plt.figure(num=None, figsize=(10, 6), dpi=80, facecolor='w', edgecolor='k')
     plt.plot(experiment_range, profit)
     plt.xlabel("Size of Energy Storage")
