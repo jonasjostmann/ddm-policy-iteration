@@ -3,35 +3,37 @@ import numpy as np
 import random
 import time
 from policyiter import evaluation, improvement, treebuilder, config
+import copy
 
 
-def create_random_policy(pre_decision_states, post_decision_states):
+def create_random_policy(pre_decision_states_copy, post_decision_states):
     """
     Method to create a random Policy
-    :param pre_decision_states: Pre-Decision states represented by an array
+    :param pre_decision_states_copy: Pre-Decision states represented by an array
     :param post_decision_states: Post-Decision states represented by an array
     :return: policy represented by an array (indecis: Pre-Decision states, values: Post-Decision states)
     """
     # Number of pre decision states to iterate over
-    n_pre_states = len(pre_decision_states)
+    n_pre_states = len(pre_decision_states_copy)
 
     # initialize policy
-    policy = [None] * n_pre_states
+
+    policy_copy = [None] * n_pre_states
 
     counter = 0
 
     for pre_state in range(0, n_pre_states):
 
         # Last States have an empty trans_mat because the time horizon is reached and no decision can be made
-        if (pre_decision_states[pre_state]["trans_mat"] is not None):
+        if (pre_decision_states_copy[pre_state]["trans_mat"] is not None):
             random.seed(config.SEED)
-            random_state = random.choice(pre_decision_states[pre_state]["trans_mat"].columns.levels[0])
-            price_index = pre_decision_states[pre_state]["trans_mat"].index[0]
+            random_state = random.choice(pre_decision_states_copy[pre_state]["trans_mat"].columns.levels[0])
+            price_index = pre_decision_states_copy[pre_state]["trans_mat"].index[0]
 
-            policy[pre_state] = pre_decision_states[pre_state]["trans_mat"].loc[price_index][random_state].iloc[0][0][
+            policy_copy[pre_state] = pre_decision_states_copy[pre_state]["trans_mat"].loc[price_index][random_state].iloc[0][0][
                 "post_state"]
 
-    return policy
+    return policy_copy
 
 
 def main():
@@ -80,57 +82,63 @@ def main():
 
     # Create the tree
     start_time_tree = time.process_time()
-    pre_decision_states, post_decision_states = treebuilder.create_tree(time_horizon,
+    new_tree = copy.deepcopy(treebuilder.create_tree(time_horizon,
                                                                         energy_levels,
                                                                         price_levels,
-                                                                        pre_decision_states,
-                                                                        post_decision_states,
+                                                                        copy.deepcopy(pre_decision_states),
+                                                                        copy.deepcopy(post_decision_states),
                                                                         MAX_PULL,
-                                                                        MAX_PUSH)
+                                                                        MAX_PUSH))
+
+    pre_decision_states = copy.deepcopy(new_tree["pre"])
+    post_decision_states = copy.deepcopy(new_tree["post"])
+
     stop_time_tree = time.process_time()
 
     # Create a random policy
-    policy = create_random_policy(pre_decision_states, post_decision_states)
+    policy = copy.deepcopy(create_random_policy(copy.deepcopy(pre_decision_states), copy.deepcopy(post_decision_states)))
 
-    pre_first, _ = evaluation.evaluate_policy(policy.copy(),
-                                                                           pre_decision_states.copy(),
-                                                                           post_decision_states.copy(),
+    new_eval = copy.deepcopy(evaluation.evaluate_policy(copy.deepcopy(policy),
+                                                                           copy.deepcopy(pre_decision_states),
+                                                                           copy.deepcopy(post_decision_states),
                                                                            PROB_MATRIX.copy(),
-                                                                           EFF_COEFF)
+                                                                           EFF_COEFF))
+
+    pre_first = copy.deepcopy(new_eval["pre"])
 
     print(pre_first[0]["v"])
 
     counter = 0
 
     start_time_policy_iteration = time.process_time()
+
     while (True):
+
         counter = counter + 1
         print(f"Iteration: #{counter}")
 
         # Evaluate_policy
-        pre_decision_states, post_decision_states = evaluation.evaluate_policy(policy.copy(),
-                                                                               pre_decision_states.copy(),
-                                                                               post_decision_states.copy(),
+        new_eval = copy.deepcopy(evaluation.evaluate_policy(copy.deepcopy(policy),
+                                                                               copy.deepcopy(pre_decision_states),
+                                                                               copy.deepcopy(post_decision_states),
                                                                                PROB_MATRIX.copy(),
-                                                                               EFF_COEFF)
+                                                                               EFF_COEFF))
+
+        pre_decision_states = copy.deepcopy(new_eval["pre"])
+        post_decision_states = copy.deepcopy(new_eval["post"])
 
         # Policy improvement
-        policy_new = improvement.improve_policy(policy,
-                                                pre_decision_states.copy(),
-                                                post_decision_states.copy(),
+        policy_new = copy.deepcopy(improvement.improve_policy(copy.deepcopy(policy),
+                                                copy.deepcopy(pre_decision_states),
+                                                copy.deepcopy(post_decision_states),
                                                 PROB_MATRIX,
-                                                EFF_COEFF).copy()
+                                                EFF_COEFF))
 
         print(policy)
         print(policy_new)
 
         if (policy_new == policy):
-            # Evaluate_policy
-            pre_decision_states, post_decision_states = evaluation.evaluate_policy(policy.copy(),
-                                                                                   pre_decision_states.copy(),
-                                                                                   post_decision_states.copy(),
-                                                                                   PROB_MATRIX.copy(),
-                                                                                   EFF_COEFF)
+
             stop_time_policy_iteration = time.process_time()
             time_policy_iteration = stop_time_policy_iteration - start_time_policy_iteration
             time_tree = stop_time_tree - start_time_tree
@@ -155,7 +163,8 @@ def main():
                   f"Expected Reward for Initial State:      {pre_decision_states[0]['v']}")
             break
 
-        policy = policy_new
+
+        policy = copy.deepcopy(policy_new)
 
 if __name__ == "__main__":
     main()
