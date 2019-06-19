@@ -57,8 +57,6 @@ def main():
     MAX_PULL = config.MAX_PULL
     MAX_PUSH = config.MAX_PUSH
 
-    # TODO: generate Probabilities automatically with seed to create reproducable results (Durchführbar mit ziehen ohne
-    # TODO: ohne zurücklegen aus einem Zustandsraum, den man vorher definiert hat
     # Definition of the Probabilities from one Price Level to another
     TRANS_PROB = config.TRANS_PROB
     # Check if dimensions are specified correct
