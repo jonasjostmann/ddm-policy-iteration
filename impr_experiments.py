@@ -6,7 +6,7 @@ from policyiter import evaluation, improvement, treebuilder, config
 import copy
 import csv
 
-SEED = 42
+SEED = 123
 
 def create_random_policy(pre_decision_states_copy, post_decision_states):
     """
@@ -48,7 +48,7 @@ def main():
 
     # Definition of possible Energy levels
     ENERGY_MIN = 0
-    ENERGY_MAX = 7
+    ENERGY_MAX = 3
     ENERGY_STEP_SIZE = 1
     energy_levels = np.arange(ENERGY_MIN, ENERGY_MAX + ENERGY_STEP_SIZE, ENERGY_STEP_SIZE)
 
@@ -66,7 +66,7 @@ def main():
         raise ValueError('You have to specify a transition probability for each Price Level!')
     PROB_MATRIX = pd.DataFrame(TRANS_PROB, columns=price_levels, index=price_levels)
 
-    MAX_TIME = 3
+    MAX_TIME = 4
     time_horizon = np.arange(1, MAX_TIME + 1)
 
     pre_decision_states = []
