@@ -3,13 +3,17 @@ import numpy as np
 from tqdm import tqdm
 import copy
 
-# TODO: Assumption that contribution of last states in time horizon is zero
-'''
-Calculate Contribution
-Method to calculate the returned contribution by making a decision a.
-'''
+
 def calc_contribution(pre_state, post_state, pre_decision_states_copy, post_decision_states_copy, eff_coeff):
-    # Calculate contribution (Old Energy Level - New Energy Level) * Price per Energy
+    """
+    Calculate Contribution - Method to calculate the returned contribution by making a decision a.
+    :param pre_state: index of considered pre-decision state
+    :param post_state: index of the post state reached stated by the policy
+    :param pre_decision_states_copy: a copy of the current pre-decision states
+    :param post_decision_states_copy: a copy of the current post-decision states
+    :param eff_coeff: efficiency coefficient
+    :return: skalar value of direct contribution
+    """
 
     contribution = 0
 
@@ -29,13 +33,16 @@ def calc_contribution(pre_state, post_state, pre_decision_states_copy, post_deci
     return contribution
 
 
-
-'''
-Policy Evaluation
-Method to evaluate a given Policy
-'''
 def evaluate_policy(policy, pre_decision_states_copy, post_decision_states_copy, prob_matrix, eff_coeff):
-
+    """
+    Policy Evaluation - Method to evaluate a given Policy
+    :param policy: current policy which has to be evaluated
+    :param pre_decision_states_copy: a copy of the current pre-decision states
+    :param post_decision_states_copy: a copy of the current post-decision states
+    :param prob_matrix: transition probabilities
+    :param eff_coeff: efficiency coefficient
+    :return: returns pre- and post-decision states with updated v-values
+    """
     print("\n Policy is evaluated...")
     n_pre_states = len(pre_decision_states_copy)
 
@@ -55,9 +62,6 @@ def evaluate_policy(policy, pre_decision_states_copy, post_decision_states_copy,
             # Iterate over all pre_decision states in the list which are considered to calculate V-Value for Predecision
             # state of current iteration of outer loop
             for pre_dec_v in pre_dec_v_list:
-                # Check if List is not None in order to prevent errors
-                #if pre_dec_v_list is not None:
-                #    pre_dec_v_list.remove(pre_dec_v)
 
                 # If trans_mat is none No decision can be made, thus V-Value is 0
                 if pre_decision_states_copy[pre_dec_v]["trans_mat"] is None:
@@ -86,19 +90,6 @@ def evaluate_policy(policy, pre_decision_states_copy, post_decision_states_copy,
                     pre_v_state_price = pre_decision_states_copy[pre_v_state]["state"][0]
                     pre_dec_price = pre_decision_states_copy[pre_dec_v]["state"][0]
 
-                    # If pre_v is not None the v value was determined in a previous iteration and can be used in this calculation
-                    # if (pre_v is not None):
-                    #
-                    #     v[pre_dec_v, pre_v_state] = prob_matrix.loc[pre_dec_price,
-                    #                                                 pre_v_state_price]
-                    #
-                    #     # Index n_pre_states leads to last column of matrix (represents the result of this line of the
-                    #     # equation
-                    #     v[pre_v_state, n_pre_states] = pre_decision_states_copy[pre_v_state]["v"]
-                    #     v[pre_v_state, pre_v_state] = 1
-                    #
-                    # # In last pre_decision states the trans_mat is None because no decision can be made v-value is zero
-                    # el
                     if pre_decision_states_copy[pre_v_state]["trans_mat"] is None:
                         v[pre_dec_v, pre_v_state] = prob_matrix.loc[pre_dec_price,
                                                                     pre_v_state_price]
@@ -110,13 +101,11 @@ def evaluate_policy(policy, pre_decision_states_copy, post_decision_states_copy,
                         v[pre_dec_v, pre_v_state] = prob_matrix.loc[pre_dec_price,
                                                                     pre_v_state_price]
 
-                        # Check if List is None to prevent errors
-                        #if pre_dec_v_list is None:
-                        #    pre_dec_v_list = []
                         # Append pre_decision_states to the list for which the v-value must be calculated
                         if(pre_v_state not in pre_dec_v_list):
                             pre_dec_v_list.append(pre_v_state)
 
+            # Avoid singular matrix by set diagonal to one where no values are provided
             for i in range(0, len(v[:, 0])):
                 if (not np.any(v[i, :])):
                     v[i,i] = 1
@@ -125,12 +114,10 @@ def evaluate_policy(policy, pre_decision_states_copy, post_decision_states_copy,
             a = v[:, range(0, n_pre_states)]
             b = v[:, n_pre_states]
 
-            # lstq solver is used, because normal solver cannot handle singular matrices
+            # Solver for linear equations of the numpy package is used
             x = np.linalg.solve(a, b)
 
             pre_decision_states_copy[pre_dec]["v"] = copy.deepcopy(x[pre_dec])
-
-            # TODO: Calculate expected V-Value of post decision states for trans Matrix
 
     print("Evaluation completed successfully!")
 
