@@ -102,9 +102,8 @@ def main():
                                                                            PROB_MATRIX.copy(),
                                                                            EFF_COEFF))
 
+    # Value for the intitial state of the random Policy
     pre_first = copy.deepcopy(new_eval["pre"])
-
-    print(pre_first[0]["v"])
 
     counter = 0
 
@@ -142,23 +141,25 @@ def main():
             time_tree = stop_time_tree - start_time_tree
             print(f"\nPOLICY CONVERGED!\n"
                   "\n"
-                  f"# Pre-Decision-States:                  {len(pre_decision_states)}"
+                  f"# Pre-Decision-States:                                  {len(pre_decision_states)}"
                   "\n"
-                  f"# Post-Decision-States:                 {len(post_decision_states)}"
+                  f"# Post-Decision-States:                                 {len(post_decision_states)}"
                   "\n"
-                  f"Different Price Levels:                 {len(price_levels)}"
+                  f"Different Price Levels:                                 {len(price_levels)}"
                   "\n"
-                  f"Different Energy Levels:                {len(energy_levels)}"
+                  f"Different Energy Levels:                                {len(energy_levels)}"
                   "\n"
-                  f"Time for building the tree (Seconds):   {time_tree}"
+                  f"Time for building the tree (Seconds):                   {time_tree}"
                   "\n"
-                  f"Time for Policy Iteration (Seconds):    {time_policy_iteration}"
+                  f"Time for Policy Iteration (Seconds):                    {time_policy_iteration}"
                   "\n"
-                  f"# Iterations:                           {counter}"
+                  f"# Iterations:                                           {counter}"
                   "\n"
-                  f"Chosen Initial State:                   Price: {INITIAL_STATE[0]}, Energy-Level: {INITIAL_STATE[1]}"
+                  f"Chosen Initial State:                                   Price: {INITIAL_STATE[0]}, Energy-Level: {INITIAL_STATE[1]}"
                   "\n"
-                  f"Expected Reward for Initial State:      {pre_decision_states[0]['v']}")
+                  f"Expected reward for Initial State (OPTIMAL POLICY):     {pre_decision_states[0]['v']}"
+                  "\n"
+                  f"Expected reward for initial state (RANDOM POLICY):      {pre_first[0]['v']}")
             break
 
 
