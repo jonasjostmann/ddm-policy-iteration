@@ -2,15 +2,19 @@ import numpy as np
 from policyiter import evaluation
 import copy
 
-'''
-Policy Improvement
-Method to improve current Policy
-'''
-# TODO: Call improve policy maybe recursive? To improve until no change in polcy
+
 def improve_policy(policy_copy, pre_decision_states, post_decision_states, prob_matrix, eff_coeff):
+    """
+    Policy Improvement - Method to improve current Policy
+    :param policy_copy: current policy which has to be improved
+    :param pre_decision_states a copy of the current pre-decision states
+    :param post_decision_states: a copy of the current post-decision states
+    :param prob_matrix: transition probabilities
+    :param eff_coeff: efficiency coefficient
+    :return: returns improved policy
+    """
     print("\nImprove current Policy...")
 
-    # Todo: Auf copys achten: hier wurde z.B. auf das gleiche Objekt referenziert
     policy_temp = copy.deepcopy(policy_copy)
 
     n_pre_states = len(pre_decision_states)
@@ -50,7 +54,7 @@ def improve_policy(policy_copy, pre_decision_states, post_decision_states, prob_
 
                     action_values[a] += prob_matrix.loc[pre_price, post_price] * new_pre_state['v']
 
-
+            # Select best decision regarding the exepected contribution
             best_a = np.argmax(action_values)
             policy_temp[pre_dec] = pre_decision_states[pre_dec]["trans_mat"].iloc[0, best_a][0]["post_state"]
 
