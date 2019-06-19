@@ -1,15 +1,22 @@
 import pandas as pd
 import numpy as np
 import copy
-'''
-Create tree
-Method to create the tree
-'''
-# TODO: in order to be able to differ in discretization step size change all references to which need normal numbers
-# TODO: Add Probabilities to post decision states
+
+
 def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states_copy, post_decision_states_copy, max_pull, max_push,
                 verbosity=1):
-
+    """
+    Create tree - Method to create the decision tree
+    :param time_horizon: time horizon for which the tree has to be be created
+    :param energy_levels: Energy levels which are allowed
+    :param price_levels: Price levels which are allowed
+    :param pre_decision_states_copy: current pre-decision states
+    :param post_decision_states_copy: current post-decision states
+    :param max_pull: maximal pullable energy at a point in time
+    :param max_push: maximal pushable energy at a point in time
+    :param verbosity: verbosity
+    :return: decision tree
+    """
     if(verbosity>=1):
         print("\nBuilding the tree...")
 
@@ -45,8 +52,6 @@ def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states_c
             # Insert None Values to build structure of DataFrame
             # Iterate over all energy levels represented by their index in this for loop
             for e_l in range(0, len(possible_energy_levels)):
-                # TODO: Hier ist eine Abhängigkeit zum Wert des Energy States
-                #  -> Umwandeln in Loc und heraussuchen des Price wertes vorher
                 pre_decision_states_copy[pre_state]["trans_mat"].iloc[0, e_l] = [dict(v=None, post_state=None)]
 
             for post_state in pre_decision_states_copy[pre_state]["trans_mat"].columns:
@@ -73,7 +78,6 @@ def create_tree(time_horizon, energy_levels, price_levels, pre_decision_states_c
                     # Energy Level equals col name
                     post_energy_level = post_decision_states_copy[n_post_states]["trans_mat"].columns[0]
 
-                    # TODO: Preisübergänge durchgehen mit Wahrscheinlichkeiten und Neue Predecision Zustände definieren
                     # row is equal to the price (because row index is set to the price)
                     pre_decision_states_copy.append({"v": None, "state": [post_price, post_energy_level], "trans_mat": None})
                     # After appending an additional pre state the counter must be increased by one
