@@ -131,9 +131,6 @@ def main():
                                                 PROB_MATRIX,
                                                 EFF_COEFF))
 
-        print(policy)
-        print(policy_new)
-
         if (policy_new == policy):
 
             stop_time_policy_iteration = time.process_time()
