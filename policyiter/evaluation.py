@@ -106,18 +106,27 @@ def evaluate_policy(policy, pre_decision_states_copy, post_decision_states_copy,
                             pre_dec_v_list.append(pre_v_state)
 
             # Avoid singular matrix by set diagonal to one where no values are provided
+
+            to_calc_index = pre_dec
+            to_delte_rc = list()
             for i in range(0, len(v[:, 0])):
                 if (not np.any(v[i, :])):
-                    v[i,i] = 1
+                    if(i<pre_dec):
+                        to_calc_index=to_calc_index-1
+                    to_delte_rc.append(i)
+                    #v[i,i] = 1
+
+            v = np.delete(v, to_delte_rc, 1)
+            v = np.delete(v, to_delte_rc, 0)
 
             # SOLVE LINEAR EQUATION SYSTEM
-            a = v[:, range(0, n_pre_states)]
-            b = v[:, n_pre_states]
+            a = v[:, range(0, np.size(v, 1)-1)]
+            b = v[:, np.size(v,1)-1]
 
             # Solver for linear equations of the numpy package is used
             x = np.linalg.solve(a, b)
 
-            pre_decision_states_copy[pre_dec]["v"] = copy.deepcopy(x[pre_dec])
+            pre_decision_states_copy[pre_dec]["v"] = copy.deepcopy(x[to_calc_index])
 
     print("Evaluation completed successfully!")
 
